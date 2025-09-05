@@ -15,19 +15,36 @@ Tools Used: SQL, BigQuery
 
 ## 1. 📌 Background & Overview  
 
-#### Objective:
-#### 📖 What is this project about? What Business Question will it solve?
+#### 📖 What is this project about? 
+
+The project analyses a dataset of an e-commerce website using SQL. The analysis is divided into 4 parts:
+
+- **Web performance analysis**: track web performance with key metrics like **total visit**, **page views** and **number of transactions**.
+- **Revenue analysis**: analyze revenue by **traffic source**.
+- **User behavior analysis**: explore the behavior of purchasers and non-purchasers; analyze the **customer journey** from "view product" to "purchase".
+- **Best-selling product analysis**: analyze the best-selling product by month and products frequently purchased together.
+
+These analyses are useful to:
+
+- Keep in track the monthly performance of website
+- Identify important **traffic sources**
+- Understand the purchase behavior to **optimize conversion rates**
+- Make data-driven **cross-selling strategies**
+
+
 
 #### 👤 Who is this project for?
-
+- Data analyst
+- Business analyst
+- Digital marketing team
+- E-commerce manager and stakeholder
 ---
 
 ## 2. 📂 Dataset Description  
 
 #### 📌 Data Source  
-- Source: (Mention where the dataset is obtained from—Kaggle, company database, government sources, etc.)  
-- Size: (Mention the number of rows & columns)  
-- Format: (.csv, .sql, .xlsx, etc.)
+- Source: The dataset is from Google Analytics 4 (GA4), exported to BigQuery. It contains user activities on an e-commerce website.
+- Size: (Mention the number of rows & columns)
 
 #### 📂 Data description
 
