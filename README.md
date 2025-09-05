@@ -1,6 +1,42 @@
-# Analyze ecommerce website with SQL
+# Analyze web performance and user behavior for an e-commerce website with SQL 
+Author: Huỳnh Như Yến  
+Date: 09-2025 <br>
+Tools Used: SQL, BigQuery 
 
-### Query 01: calculate total visit, pageview, transaction for Jan, Feb and March 2017 (order by month)
+---
+
+## 📑 Table of Contents  
+1. [📌 Background & Overview](#-background--overview)  
+2. [📂 Dataset Description](#-dataset-description)
+3. [⚒ Queries and Insights](#-queries-and-insights)
+4. [🔎 Recommendations](#-recommendations)
+
+---
+
+## 1. 📌 Background & Overview  
+
+#### Objective:
+#### 📖 What is this project about? What Business Question will it solve?
+
+#### 👤 Who is this project for?
+
+---
+
+## 2. 📂 Dataset Description  
+
+#### 📌 Data Source  
+- Source: (Mention where the dataset is obtained from—Kaggle, company database, government sources, etc.)  
+- Size: (Mention the number of rows & columns)  
+- Format: (.csv, .sql, .xlsx, etc.)
+
+#### 📂 Data description
+
+---
+## 3. ⚒ Queries and Insights
+
+### Task 1: Web performance analysis
+
+#### ⚒ Query 1.1: calculate total visit, pageview, transaction by month
 ```sql 
 WITH raw_data AS   
   (SELECT 
@@ -20,218 +56,63 @@ FROM raw_data
 GROUP BY raw_data.month
 ORDER BY month;
 ```
+#### 👉🏻 Results:
 
-### Query 02: Bounce rate per traffic source in July 2017 
+#### 🔎 Insights: 
 
-```sql
-SELECT 
-      trafficSource.source,
-      COUNT(totals.visits) AS total_visit,
-      COUNT(totals.bounces) AS total_no_of_bounce,
-      ROUND((COUNT(totals.bounces))*100.0/COUNT(totals.visits),3) AS bounce_rate
-FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`
-GROUP BY trafficSource.source
-ORDER BY total_visit DESC;
-```
+--- 
 
-### Query 3: Revenue by traffic source by week, by month in June 2017
+### Task 2: Revenue analysis
 
-```sql
-WITH raw_data AS  
-  (SELECT  
-        date,
-        trafficSource.source,
-        productRevenue 
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201706*`,
-  UNNEST (hits) AS hits,
-  UNNEST (product) AS product
-  WHERE productRevenue IS NOT NULL)
+#### ⚒ Query 2.1: Revenue by traffic source
 
-, week_table AS 
-  (SELECT 
-        'Week' AS time_type,
-        FORMAT_DATE('%Y%W', PARSE_DATE('%Y%m%d', date)) AS time,
-        source,
-        productRevenue
-  FROM raw_data) 
+#### 👉🏻 Results:
 
-, month_table AS
-  (SELECT
-        'Month' AS time_type,
-        FORMAT_DATE('%Y%m', PARSE_DATE('%Y%m%d', date)) AS time,
-        source,
-        productRevenue
-  FROM raw_data)
+#### 🔎 Insights:
 
-SELECT 
-      time_type,
-      time, 
-      source,
-      ROUND(SUM(productRevenue)/1000000.0,4) AS revenue 
-FROM week_table 
-GROUP BY time_type, time, source 
-UNION ALL
-SELECT 
-      time_type,
-      time,
-      source,
-      ROUND(SUM(productRevenue)/1000000.0,4) AS revenue
-FROM month_table
-GROUP BY time_type, time, source;
+#### ⚒ Query 2.2: Revenue per session (RPS) by traffic source
 
-```
+#### 👉🏻 Results:
 
-### Query 04: Average number of pageviews by purchaser type (purchasers vs non-purchasers) in June, July 2017
+#### 🔎 Insights:
 
-```sql
-WITH raw_data AS   
-  (SELECT 
-        FORMAT_DATE('%Y%m', PARSE_DATE('%Y%m%d', date)) AS month,
-        fullVisitorID, 
-        productRevenue, 
-        totals.pageviews,
-        totals.transactions
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
-  UNNEST (hits) AS hits,
-  UNNEST (hits.product) AS product 
-  WHERE _table_suffix BETWEEN '0601' AND '0731')
+---
+### Task 3: User behavior analysis 
 
-, purchaser AS 
-  (SELECT 
-        month,
-        SUM(pageviews)/COUNT(distinct fullVisitorID) AS avg_pageviews_purchase
-  FROM raw_data
-  WHERE transactions >= 1 AND productRevenue IS NOT NULL
-  GROUP BY month)
+#### ⚒ Query 3.1: Bounce rate per traffic source
 
-, non_purchaser AS 
-  (SELECT 
-          month,
-          SUM(pageviews)/COUNT(distinct fullVisitorID) AS avg_pageviews_non_purchase
-   FROM raw_data
-   WHERE productRevenue IS NULL AND transactions IS NULL
-   GROUP BY month)
+#### 👉🏻 Results:
 
-SELECT
-      purchaser.month,
-      avg_pageviews_purchase,
-      avg_pageviews_non_purchase
-FROM purchaser
-LEFT JOIN non_purchaser 
-USING(month)
-ORDER BY purchaser.month;
-```
+#### 🔎 Insights:
 
-### Query 05: Average number of transactions per user that made a purchase in July 2017
+#### ⚒ Query 3.2: Average number of pageviews by purchaser type (purchasers vs non-purchasers) 
 
-```sql
-WITH raw_data AS 
-      (SELECT 
-            FORMAT_DATE('%Y%m', PARSE_DATE('%Y%m%d', date)) AS month,
-            fullVisitorID, 
-            productRevenue, 
-            totals.transactions
-      FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`,
-      UNNEST (hits) AS hits,
-      UNNEST (hits.product) AS product)
+#### 👉🏻 Results:
 
-SELECT 
-      month, 
-      SUM(transactions)/COUNT(DISTINCT fullVisitorID) AS avg_total_transactions_per_user
-FROM raw_data
-WHERE productRevenue IS NOT NULL AND transactions >= 1
-GROUP BY 1;
-```
+#### 🔎 Insights:
 
-### Query 06: Average amount of money spent per session. Only include purchaser data in July 2017
+#### ⚒ Query 3.3: Average amount of time per session by purchaser type (purchasers vs non-purchasers)
 
-```sql
-SELECT 
-      FORMAT_DATE('%Y%m', PARSE_DATE('%Y%m%d', date)) AS month,
-      ROUND(SUM(productRevenue)/(COUNT(fullVisitorID)*1000000.0), 2) AS avg_revenue_by_user_per_visit
-FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`,
-UNNEST (hits) AS hits,
-UNNEST (hits.product) AS product
-WHERE totals.transactions IS NOT NULL AND productRevenue IS NOT NULL 
-GROUP BY FORMAT_DATE('%Y%m', PARSE_DATE('%Y%m%d', date));
-```
+#### 👉🏻 Results:
 
-### Query 07: Other products purchased by customers who purchased product "YouTube Men's Vintage Henley" in July 2017.
-```sql
-WITH raw_data AS     
-      (SELECT 
-            FORMAT_DATE('%Y%m', PARSE_DATE('%Y%m%d', date)) AS month,
-            fullVisitorID, 
-            productRevenue, 
-            totals.transactions,
-            v2productName,
-            productQuantity
-      FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`,
-      UNNEST (hits) AS hits,
-      UNNEST (hits.product) AS product
-      WHERE productRevenue IS NOT NULL 
-      AND totals.transactions IS NOT NULL)
+#### 🔎 Insights:
 
-SELECT 
-      v2productName AS other_purchased_products,
-      SUM(productQuantity) AS quantity
-FROM raw_data
-WHERE fullVisitorID IN (SELECT DISTINCT fullVisitorID
-                  FROM raw_data
-                  WHERE v2productName = "YouTube Men's Vintage Henley")
-AND v2productName <> "YouTube Men's Vintage Henley"
-GROUP BY v2productName
-ORDER BY quantity DESC;
-```
+#### ⚒ Query 3.4: Average number of transactions per user that made a purchase
 
-### Query 08: Calculate cohort map from product view to addtocart to purchase in Jan, Feb and March 2017. 
-```sql
-with
-product_view as(
-  SELECT
-    format_date("%Y%m", parse_date("%Y%m%d", date)) as month,
-    count(product.productSKU) as num_product_view
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_*`
-  , UNNEST(hits) AS hits
-  , UNNEST(hits.product) as product
-  WHERE _TABLE_SUFFIX BETWEEN '20170101' AND '20170331'
-  AND hits.eCommerceAction.action_type = '2'
-  GROUP BY 1
-),
+#### 👉🏻 Results:
 
-add_to_cart as(
-  SELECT
-    format_date("%Y%m", parse_date("%Y%m%d", date)) as month,
-    count(product.productSKU) as num_addtocart
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_*`
-  , UNNEST(hits) AS hits
-  , UNNEST(hits.product) as product
-  WHERE _TABLE_SUFFIX BETWEEN '20170101' AND '20170331'
-  AND hits.eCommerceAction.action_type = '3'
-  GROUP BY 1
-),
+#### 🔎 Insights:
 
-purchase as(
-  SELECT
-    format_date("%Y%m", parse_date("%Y%m%d", date)) as month,
-    count(product.productSKU) as num_purchase
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_*`
-  , UNNEST(hits) AS hits
-  , UNNEST(hits.product) as product
-  WHERE _TABLE_SUFFIX BETWEEN '20170101' AND '20170331'
-  AND hits.eCommerceAction.action_type = '6'
-  and product.productRevenue is not null 
-  group by 1
-)
+#### ⚒ Query 3.5: Calculate conversion rates from "view product" to "add to cart" and "purchase"
+#### 👉🏻 Results:
 
-select
-    pv.*,
-    num_addtocart,
-    num_purchase,
-    round(num_addtocart*100/num_product_view,2) as add_to_cart_rate,
-    round(num_purchase*100/num_product_view,2) as purchase_rate
-from product_view pv
-left join add_to_cart a on pv.month = a.month
-left join purchase p on pv.month = p.month
-order by pv.month;
-```
+#### 🔎 Insights:
+
+---
+### ⚒ Task 4: Best-selling product analysis
+#### 👉🏻 Results:
+
+#### 🔎 Insights:
+
+--- 
+## 4.🔎 Recommendations
