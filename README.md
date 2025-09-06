@@ -55,28 +55,29 @@ These analyses are useful to:
 
 #### ⚒ Query 1.1: calculate total visit, pageview, transaction by month
 ```sql 
-WITH raw_data AS   
-  (SELECT 
-        FORMAT_DATE('%Y%m', PARSE_DATE('%Y%m%d',date)) AS month,
-        totals.visits, 
-        totals.pageviews, 
-        totals.transactions
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`
-  WHERE _table_suffix between '0101' and '0331')
-
 SELECT 
-      month,
-      COUNT(visits) AS visits,
-      SUM(pageviews) AS pageviews,
-      SUM(transactions) AS transactions
-FROM raw_data
-GROUP BY raw_data.month
+      FORMAT_DATE('%Y-%m', PARSE_DATE('%Y%m%d',date)) AS month,
+      SUM(totals.visits) AS total_visit,
+      SUM(totals.pageviews) AS total_pageview,
+      SUM(totals.transactions) AS total_transaction
+FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`
+WHERE _table_suffix BETWEEN '0101' AND '0731'
+GROUP BY 1
 ORDER BY month;
 ```
 #### 👉🏻 Results:
 
-#### 🔎 Insights: 
+<img width="578" height="216" alt="image" src="https://github.com/user-attachments/assets/d1c8b30a-4501-4581-8a7d-09cf24336db3" />
 
+
+#### 🔎 Insights: 
+<img width="400" height="250" alt="image" src="https://github.com/user-attachments/assets/c2ed18ee-6315-40d1-b7cd-4d19237387ef" />
+
+- The figure shows that **total visits** and **total page views** are relatively **stable** across the first seven months in 2017.
+
+<img width="400" height="250" alt="image" src="https://github.com/user-attachments/assets/04418dc6-ae6d-4d63-b58b-ac3f371c9724" />
+
+- The number of **transactions** experiences an **upward trend** across months. May has the highest number of transactions at 1160.
 --- 
 
 ### Task 2: Revenue analysis
