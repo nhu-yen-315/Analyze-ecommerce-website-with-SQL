@@ -1,4 +1,4 @@
-# Analyze web performance and user behavior for an e-commerce website with SQL 
+# Analyze web performance and user engagement for an e-commerce website with SQL 
 Author: Huỳnh Như Yến  
 Date: 09-2025 <br>
 Tools Used: SQL, BigQuery 
@@ -21,7 +21,7 @@ The project analyses a dataset of an e-commerce website using SQL. The analysis 
 
 - **Web performance analysis**: track web performance with key metrics like **total visit**, **page views** and **number of transactions**.
 - **Revenue analysis**: analyze revenue by **traffic source**.
-- **User behavior analysis**: explore the behavior of purchasers and non-purchasers; analyze the **customer journey** from "view product" to "purchase".
+- **User engagement analysis**: explore the behavior of purchasers and non-purchasers; analyze the **customer journey** from "view product" to "purchase".
 - **Best-selling product analysis**: analyze the best-selling product by month and products frequently purchased together.
 
 These analyses are useful to:
@@ -136,10 +136,23 @@ ORDER BY 2 DESC;
 - Even though **AOL Mail** and **Dealspotr** do not have high total revenues, each visitor coming from these two sources **spends more money** than others.
 
 ---
-### Task 3: User behavior analysis 
+### Task 3: User engagement analysis 
+- User engagement is how users engage with the website. In e-commerce context, great user engagement indicates that users are interested in products and intend to buy something.
+- Key metrics to measure user engagement in e-commerce:
+  + **Bounce rate**: whether visitor leave or stay in the website after viewing the landing page.
+  + **Session duration**: how much time a visitor spends on the website.
+  + **Pages per session**: how many pages a visitor views. 
+  + **Conversion rates**: the percentage of visitors completing a desired action out of total visitors.
 
 #### ⚒ Query 3.1: Bounce rate per traffic source
-
+- **Bounce rate** is a metric to measure **user engagement**.
+- It is the **percentage of site vistors who leave after viewing only one page** without taking any further action. 
+- Higher bounce rate is undesireable, indicating that many visitors leave after viewing the landing page. There are several causes leading to high bounce rate:
+  + Slow page speed
+  + Visitors' concern is irrelevant to the content.
+  + The visual and/or content of the landing page is not attractive.
+  + The website is not compatible with the device.
+  
 ```sql
 SELECT 
       trafficSource.source,
@@ -154,30 +167,141 @@ ORDER BY total_visit DESC;
 
 #### 👉🏻 Results:
 <p align='center'>
-      <img width="636" height="378" alt="image" src="https://github.com/user-attachments/assets/8d04c892-4093-489a-8a7a-551d2a2bc723" />
+     <img width="635" height="378" alt="image" src="https://github.com/user-attachments/assets/0a0cf62c-11a8-467f-816c-c5349291048b" />
 </p>
 
 #### 🔎 Insights:
+- Considering traffic sources with above 1000 total visits, **Twitter (t.co), Youtube and Baidu** have the **highest bounce rates** at **70%, 68.2% and 68%** respectively. 
+- Sources generating high revenues such as **Direct source, Google and Google Mail** have relatively **low bounce rates** in the range of 37% to 45%.
 
-#### ⚒ Query 3.2: Average number of pageviews by purchaser type (purchasers vs non-purchasers) 
+#### ⚒ Query 3.2: Average number of page views by purchaser type (purchasers vs non-purchasers) 
+- Classifying visitors into purchaser and non-purchaser groups is useful to explore any differences in their behavior.
+- Insights are helpful to come up with solutions to convert non-purchasers to purchasers. 
+
+```sql
+WITH raw_table AS
+      (SELECT 
+            FORMAT_DATE('%Y-%m', PARSE_DATE('%Y%m%d', date)) AS month,
+            fullVisitorID,
+            totals.transactions AS transaction_num,
+            p.productRevenue AS revenue,
+            totals.pageviews
+      FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+            UNNEST(hits) hits,
+            UNNEST(product) AS p
+      WHERE _table_suffix BETWEEN '0101' AND '0731'
+      )
+, purchaser AS (
+      SELECT 
+            month,
+            SUM(pageviews)/COUNT(DISTINCT fullVisitorID) AS avg_pageviews_purchaser
+      FROM raw_table
+      WHERE revenue IS NOT NULL AND transaction_num >= 1
+      GROUP BY month
+)
+, non_purchaser AS (
+      SELECT 
+            month,
+            SUM(pageviews)/COUNT(DISTINCT fullVisitorID) AS avg_pageviews_non_purchaser
+      FROM raw_table
+      WHERE revenue IS NULL AND transaction_num IS NULL
+      GROUP BY month
+)
+SELECT 
+      purchaser.month,
+      purchaser.avg_pageviews_purchaser,
+      non_purchaser.avg_pageviews_non_purchaser
+FROM purchaser 
+JOIN non_purchaser
+ON purchaser.month = non_purchaser.month
+ORDER BY purchaser.month;
+```
 
 #### 👉🏻 Results:
+<p align='center'>
+      <img width="659" height="216" alt="image" src="https://github.com/user-attachments/assets/56cf5e86-463a-419c-9f4f-12eac5572f14" />
+</p>
 
 #### 🔎 Insights:
-
+- **Non-purchasers** consistently view **2.5 to 4 times more pages** than those who do.
+- The gap is consistent across months, showing that it is a **structural behavior**.
+- **More page views** are **not always desireable**. In this case, more page views reflect **confusion or dissatisfaction** since visitors **can't find the products** they want even when they browse many pages.
+  
 #### ⚒ Query 3.3: Average amount of time per session by purchaser type (purchasers vs non-purchasers)
 
+```sql
+WITH raw_table AS
+      (SELECT 
+            FORMAT_DATE('%Y-%m', PARSE_DATE('%Y%m%d', date)) AS month,
+            fullVisitorID,
+            totals.transactions AS transaction_num,
+            p.productRevenue AS revenue,
+            totals.timeOnSite AS duration
+      FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+            UNNEST(hits) hits,
+            UNNEST(product) AS p
+      WHERE _table_suffix BETWEEN '0101' AND '0731'
+      )
+, purchaser AS (
+      SELECT 
+            month,
+            SUM(duration)/COUNT(DISTINCT fullVisitorID) AS avg_duration_purchaser
+      FROM raw_table
+      WHERE revenue IS NOT NULL AND transaction_num >= 1
+      GROUP BY month
+)
+, non_purchaser AS (
+      SELECT 
+            month,
+            SUM(duration)/COUNT(DISTINCT fullVisitorID) AS avg_duration_non_purchaser
+      FROM raw_table
+      WHERE revenue IS NULL AND transaction_num IS NULL
+      GROUP BY month
+)
+SELECT 
+      purchaser.month,
+      purchaser.avg_duration_purchaser,
+      non_purchaser.avg_duration_non_purchaser
+FROM purchaser 
+JOIN non_purchaser
+ON purchaser.month = non_purchaser.month
+ORDER BY purchaser.month;
+```
 #### 👉🏻 Results:
+<p align='center'>
+      <img width="619" height="214" alt="image" src="https://github.com/user-attachments/assets/cf166c0a-5e46-4d1a-ab60-24b9894c52e7" />
+</p>
 
 #### 🔎 Insights:
-
+- Consistent with the insight from query 3.2, **non-purchasers spend more time** within a session compared to purchasers.
+- Purchasers are decisive. Once they found the desired products, they completed the purchase and finished the session.
+- Non-purchasers spend more time to browse and find desired products.
+  
 #### ⚒ Query 3.4: Average number of transactions per user that made a purchase
-
+```sql
+SELECT 
+      FORMAT_DATE('%Y-%m', PARSE_DATE('%Y%m%d', date)) AS month,
+      SUM(totals.transactions)/COUNT(DISTINCT fullVisitorID) AS avg_transaction
+FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+      UNNEST(hits) hits,
+      UNNEST(product) AS p
+WHERE _table_suffix BETWEEN '0101' AND '0731'
+AND totals.transactions >= 1 AND p.productRevenue IS NOT NULL
+GROUP BY 1
+ORDER BY month;
+```
 #### 👉🏻 Results:
+<p align='center'>
+      <img width="416" height="215" alt="image" src="https://github.com/user-attachments/assets/e3a59338-dc0e-4217-8a82-59d00c2c8fe1" />
+</p>
 
 #### 🔎 Insights:
+- The average number of transactions per purchaser is **relatively stable** around **3.5 transactions** in most months.
+- **March** is the **exception** when the average number reached the **peak at 8.6 transactions**. 
+- **July** also shows **better-than-average** results, with **4.1 transactions** per purchaser..
 
 #### ⚒ Query 3.5: Calculate conversion rates from "view product" to "add to cart" and "purchase"
+
 #### 👉🏻 Results:
 
 #### 🔎 Insights:
@@ -190,3 +314,5 @@ ORDER BY total_visit DESC;
 
 --- 
 ## 4.🔎 Recommendations
+
+Improve product filtering/search to help users find relevant products faster.
