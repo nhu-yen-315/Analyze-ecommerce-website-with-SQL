@@ -78,7 +78,6 @@ These analyses are useful to:
 - **Total visits** and **page views** are two **key metrics** to measure **the popularity of a website**. Higher total visits and higher page views indicate that more people visit the website and the content is attractive to audience.
 - Since this is an e-commerce website, making visitors buying is the ultimate goal. Thus, the **number of transactions** is also an important metric to the business.
 
-<br>
 
 #### ⚒ Query 1.1: calculate total visit, page view, transaction by month
 ```sql 
@@ -173,7 +172,6 @@ ORDER BY 2 DESC;
   + **Pages per session**: how many pages a visitor views. 
   + **Conversion rates**: the percentage of visitors completing a desired action out of total visitors.
 
-<br>
 
 #### ⚒ Query 3.1: Bounce rate per traffic source
 - **Bounce rate** is a metric to measure **user engagement**.
