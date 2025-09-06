@@ -66,16 +66,20 @@ GROUP BY 1
 ORDER BY month;
 ```
 #### 👉🏻 Results:
-
+<p align="center">
 <img width="578" height="216" alt="image" src="https://github.com/user-attachments/assets/d1c8b30a-4501-4581-8a7d-09cf24336db3" />
-
+</p>
 
 #### 🔎 Insights: 
+<p align="center">
 <img width="400" height="250" alt="image" src="https://github.com/user-attachments/assets/c2ed18ee-6315-40d1-b7cd-4d19237387ef" />
+</p>
 
-- The figure shows that **total visits** and **total page views** are relatively **stable** across the first seven months in 2017.
+- **Total visits** and **total page views** are relatively **stable** across the first seven months in 2017.
 
+<p align="center">
 <img width="400" height="250" alt="image" src="https://github.com/user-attachments/assets/04418dc6-ae6d-4d63-b58b-ac3f371c9724" />
+</p>
 
 - The number of **transactions** experiences an **upward trend** across months. May has the highest number of transactions at 1160.
 --- 
