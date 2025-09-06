@@ -112,8 +112,6 @@ ORDER BY month;
 
 ### Task 2: Revenue analysis
 
-<br>
-
 #### ⚒ Query 2.1: Revenue by traffic source
 ```sql
 SELECT 
