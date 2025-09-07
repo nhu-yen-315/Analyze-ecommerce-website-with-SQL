@@ -9,7 +9,7 @@ Tools Used: SQL, BigQuery
 1. [📌 Background & Overview](#-background--overview)  
 2. [📂 Dataset Description](#-dataset-description)
 3. [⚒ Queries and Insights](#-queries-and-insights)
-4. [🔎 Recommendations](#-recommendations)
+4. [💡 Recommendations](#-recommendations)
 
 ---
 
@@ -368,18 +368,114 @@ FROM product_data;
       <img width="882" height="214" alt="image" src="https://github.com/user-attachments/assets/d8c08e8e-4151-4020-9779-53710ca2072a" />
 </p>
 
-#### 🔎 Insights:
+#### 💡 Insights:
 - **Conversion performance** has **consistently improved** across months.
 - The conversion rate from **"view product" to "add to cart"** has experienced **upward trend** from **28.47%** in January to **41.5%** in July. **April** reached the **peak at 41.86%**. That indicates **improved user engagement** and **interests in products** over time.  
 - Similarly, the conversion rate from **"view product" to "complete purchase"** has seen **upward trend** from **8.31%** in January to **12.84%** in July. **May** reached the **highest** conversion rate to "complete purchase" at **12.9%**. That shows a **strong improvement**, suggesting **better product-market fit** or **optimized purchase funnel**.
 
 ---
 ### ⚒ Task 4: Best-selling product analysis
+
+#### ⚒ Query 4.1: The best-selling product by month
+```sql
+WITH sales AS
+  (SELECT
+        FORMAT_DATE('%Y-%m', PARSE_DATE('%Y%m%d', date)) AS month,
+        p.v2ProductName AS product,
+        SUM(p.productQuantity) AS quantity
+  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+    UNNEST(hits) AS hits,
+    UNNEST(hits.product) AS p
+  WHERE _table_suffix BETWEEN '0101' AND '0731' 
+  AND p.productRevenue IS NOT NULL AND totals.transactions >= 1
+  GROUP BY 1,2)
+
+SELECT month, product, quantity
+FROM (
+  SELECT *,
+         RANK() OVER (PARTITION BY month ORDER BY quantity DESC) AS rnk
+  FROM sales
+) AS ranked
+WHERE rnk = 1
+ORDER BY ranked.month;
+```
 #### 👉🏻 Results:
+<p align='center'>
+  <img width="587" height="215" alt="image" src="https://github.com/user-attachments/assets/144f5114-952d-448c-842f-96c41bc57d22" />
+</p>
 
 #### 🔎 Insights:
+- **Maze Pen** and **Google Sunglasses** **dominate** monthly top sales. **Maze Pen** is the top-selling product **3 out of 7 months**: **January, March and June**. **Google Sunglasses** is also the top-selling product in **April, May and July**.
+- **Recycled Mouse Pad** is the top-selling product only in **February**, possibly because of a **special marketing campaign**.
+- **May** has the **lowest sales** for the top-selling product. It could indicate **seasonal low** or **product fatique**.
 
+<br> 
+
+#### Query 4.2: Which products are often purchased with Maze Pen and Google Sunglasses?
+- Since Maze Pen and Google Sunglasses frequently dominate monthly sales, exploring which products are often purchased with them can make better cross-sell strategies.
+```sql
+SELECT * FROM    
+    (SELECT
+        'Maze Pen' AS top_product,
+        p.v2ProductName AS other_purchased_product,
+        SUM(p.productQuantity) AS quantity
+    FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+        UNNEST(hits) AS hits,
+        UNNEST(hits.product) AS p
+    WHERE _table_suffix BETWEEN '0101' AND '0731' 
+    AND fullVisitorID IN (
+        SELECT fullVisitorID
+        FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+        UNNEST(hits) AS hits,
+        UNNEST(hits.product) AS p
+        WHERE _table_suffix BETWEEN '0101' AND '0731'
+        AND p.v2ProductName = 'Maze Pen'
+        AND p.productRevenue IS NOT NULL AND totals.transactions >= 1
+    )
+    AND p.v2ProductName != 'Maze Pen'
+    AND p.productRevenue IS NOT NULL 
+    AND totals.transactions >= 1
+    GROUP BY p.v2ProductName
+    ORDER BY quantity DESC
+    LIMIT 3)
+
+UNION ALL
+
+SELECT * FROM    
+    (SELECT
+        'Google Sunglasses' AS top_product,
+        p.v2ProductName AS other_purchased_product,
+        SUM(p.productQuantity) AS quantity
+    FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+        UNNEST(hits) AS hits,
+        UNNEST(hits.product) AS p
+    WHERE _table_suffix BETWEEN '0101' AND '0731' 
+    AND fullVisitorID IN (
+        SELECT fullVisitorID
+        FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+        UNNEST(hits) AS hits,
+        UNNEST(hits.product) AS p
+        WHERE _table_suffix BETWEEN '0101' AND '0731'
+        AND p.v2ProductName = 'Google Sunglasses'
+        AND p.productRevenue IS NOT NULL AND totals.transactions >= 1
+    )
+    AND p.v2ProductName != 'Google Sunglasses'
+    AND p.productRevenue IS NOT NULL 
+    AND totals.transactions >= 1
+    GROUP BY p.v2ProductName
+    ORDER BY quantity DESC
+    LIMIT 3);
+```
+#### 👉🏻 Results:
+<p align='center'>
+  <img width="588" height="189" alt="image" src="https://github.com/user-attachments/assets/5753ab36-9b34-444f-9414-e15adbb04bcc" />
+</p>
+
+#### 🔎 Insights:
+- **Maze Pen and Google Sunglasses** are frequently **bought together**.
+- People buying **Maze Pen** also often purchase **Google 22 oz Water Bottle and Recycled Mouse Pad**.
+- People buying **Google Sunglasses** also often purchase **Google 22 oz Water Bottle and Sport Bag**. 
 --- 
-## 4.🔎 Recommendations
+## 4. Recommendations
 
 Improve product filtering/search to help users find relevant products faster.
