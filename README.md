@@ -1,4 +1,4 @@
-# Analyze web performance and user engagement for an e-commerce website with SQL 
+# Analyze web performance, user engagement and sales performance for an e-commerce website with SQL 
 Author: Huỳnh Như Yến  
 Date: 09-2025 <br>
 Tools Used: SQL, BigQuery 
