@@ -476,6 +476,14 @@ SELECT * FROM
 - People buying **Maze Pen** also often purchase **Google 22 oz Water Bottle and Recycled Mouse Pad**.
 - People buying **Google Sunglasses** also often purchase **Google 22 oz Water Bottle and Sport Bag**. 
 --- 
-## 4. Recommendations
+## 4. 💡 Recommendations
 
-Improve product filtering/search to help users find relevant products faster.
+
+| Analysis | Insights | Recommendations |
+|----------|----------|----------|
+| Web performance    | - **Traffic** is **stable** in the first seven months of 2017. <br> - The **number of transactions** experiences **upward trend**, which is a good sign     |      |
+| Revenue    | - **Direct, Google and Google Mail** contribute most to total revenue. <br> - Visitors from **AOL Mail and Dealspotr** spend the **most money per session**.    | - **Run Google Ads** to direct more users to the website. <br> - Send **customized offerings** to **customers' google emails**. <br> - Focus on **developing potential traffic sources** like **AOL Mail and Dealspotr** which have low total revenues but high spendings per session.  |
+| User engagement    | - Bounce rates from important traffic sources like **Direct, Google and Google Mail** remain **low**, which is a positive sign. <br> - However, other sources like **Twitter, Youtube and Baidu** experience **high** bounce rates. <br> - **Non-purchasers** browse **2.5 to 4 times more pages** than purchasers. **Non-purchasers** also **spend more time** per session than those making a purchase. It could indicate that **high duration per session** is **not always good**. Users could not find relevant products. <br> **Conversion rates** show consistent **upward trends**, indicating positive results from efforts to optimize purchase funnel.| - **Improve the frontend and/or content of landing page** and **reduce load times** for traffic sources Twitter, Youtube and Baidu to lower bounce rates. <br> - **Improve product filtering/search** to help users find relevant products faster.  <br> - Continue the current strategy to **optimize purchase funnel** (e.g simplifying checkouts)|
+| Best-selling product    | - **Maze Pen, Google Sunglasses and Cycled Mouse Pad** are top-selling products.  <br> - **Google Sunglasses, Google 22 oz Water Bottle and Recycled Mouse Pad** are often purchased by those buying **Maze Pen**. <br> - **Maze Pen, Google 22 oz Water Bottle and Sport Bag** are often purchased by those buying **Google Sunglasses**.    | - Run ads to further promote top-selling products **Maze Pen, Google Sunglasses and Cycled Mouse Pad**. <br> - **Suggest Google Sunglasses, Google 22 oz Water Bottle and Recycled Mouse** to customers who already bought Maze Pen. <br> - **Suggest Maze Pen, Google 22 oz Water Bottle and Sport Bag** to customers who already purchased Google Sunglasses.   |
+
+
