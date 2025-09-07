@@ -1,4 +1,8 @@
 # Analyze web performance, user engagement and sales performance for an e-commerce website with SQL 
+
+<img width="4000" height="2040" alt="image" src="https://github.com/user-attachments/assets/c0ea2fc7-d3b8-4c67-b215-f80c73f58945" />
+
+
 Author: Huỳnh Như Yến  
 Date: 09-2025 <br>
 Tools Used: SQL, BigQuery 
